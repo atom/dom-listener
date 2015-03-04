@@ -138,3 +138,11 @@ describe "DOMListener", ->
     grandchild.dispatchEvent(new CustomEvent('event', bubbles: true))
 
     expect(calls).toEqual ['inline 1', 'selector 1']
+
+  it "removes all listeners when DOMListener::destroy() is called", ->
+    calls = []
+    listener.add '.child', 'event', -> calls.push('selector')
+    listener.add child, 'event', -> calls.push('inline')
+    listener.destroy()
+    grandchild.dispatchEvent(new CustomEvent('event', bubbles: true))
+    expect(calls).toEqual []

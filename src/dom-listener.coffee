@@ -9,17 +9,24 @@ class DOMListener
   constructor: (@element) ->
     @selectorBasedListenersByEventName = {}
     @inlineListenersByEventName = {}
-    @nativeEventListeners = new Set
+    @nativeEventListeners = {}
 
   add: (target, eventName, handler) ->
-    unless @nativeEventListeners.has(eventName)
+    unless @nativeEventListeners[eventName]
       @element.addEventListener(eventName, @dispatchEvent)
-      @nativeEventListeners.add(eventName)
+      @nativeEventListeners[eventName] = true
 
     if typeof target is 'string'
       @addSelectorBasedListener(target, eventName, handler)
     else
       @addInlineListener(target, eventName, handler)
+
+  destroy: ->
+    for eventName of @nativeEventListeners
+      @element.removeEventListener(eventName, @dispatchEvent)
+    @selectorBasedListenersByEventName = {}
+    @inlineListenersByEventName = {}
+    @nativeEventListeners = {}
 
   addSelectorBasedListener: (selector, eventName, handler) ->
     newListener = new SelectorBasedListener(selector, handler)
