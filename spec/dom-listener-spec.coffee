@@ -83,7 +83,7 @@ describe "DOMListener", ->
       calls = []
       listener.add '.parent', 'event', -> calls.push('parent')
       listener.add '.child', 'event', (event) -> calls.push('child'); event.stopPropagation()
-      listener.add '.grandchild', 'event', (event) -> calls.push('grandchild')
+      listener.add '.grandchild', 'event', -> calls.push('grandchild')
 
       dispatchedEvent = new CustomEvent('event', bubbles: true)
       spyOn(dispatchedEvent, 'stopPropagation')
@@ -95,9 +95,9 @@ describe "DOMListener", ->
     it "stops invoking listeners entirely when .stopImmediatePropagation() is called on the synthetic event", ->
       calls = []
       listener.add '.parent', 'event', -> calls.push('parent')
-      listener.add '.child', 'event', (event) -> calls.push('child 2')
+      listener.add '.child', 'event', -> calls.push('child 2')
       listener.add '.child', 'event', (event) -> calls.push('child 1'); event.stopImmediatePropagation()
-      listener.add '.grandchild', 'event', (event) -> calls.push('grandchild')
+      listener.add '.grandchild', 'event', -> calls.push('grandchild')
 
       dispatchedEvent = new CustomEvent('event', bubbles: true)
       spyOn(dispatchedEvent, 'stopImmediatePropagation')
