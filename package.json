@@ -22,7 +22,8 @@
   ],
   "dependencies": {
     "binary-search": "^1.2.0",
-    "clear-cut": "^0.3.0"
+    "clear-cut": "^0.3.0",
+    "event-kit": "^1.0.3"
   },
   "devDependencies": {
     "coffee-script": "^1.7.0",

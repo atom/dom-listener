@@ -123,3 +123,18 @@ describe "DOMListener", ->
       spyOn(dispatchedEvent, 'preventDefault')
       grandchild.dispatchEvent(dispatchedEvent)
       expect(dispatchedEvent.preventDefault).toHaveBeenCalled()
+
+  it "allows listeners to be removed via disposables returned from ::add", ->
+    calls = []
+
+    disposable1 = listener.add '.child', 'event', -> calls.push('selector 1')
+    disposable2 = listener.add '.child', 'event', -> calls.push('selector 2')
+    disposable3 = listener.add child, 'event', -> calls.push('inline 1')
+    disposable4 = listener.add child, 'event', -> calls.push('inline 2')
+
+    disposable2.dispose()
+    disposable4.dispose()
+
+    grandchild.dispatchEvent(new CustomEvent('event', bubbles: true))
+
+    expect(calls).toEqual ['inline 1', 'selector 1']

@@ -1,3 +1,4 @@
+{Disposable} = require 'event-kit'
 {specificity} = require 'clear-cut'
 search = require 'binary-search'
 
@@ -27,12 +28,20 @@ class DOMListener
     index = -index - 1 if index < 0 # index is negative index minus 1 if no exact match is found
     listeners.splice(index, 0, newListener)
 
+    new Disposable ->
+      index = listeners.indexOf(newListener)
+      listeners.splice(index, 1)
+
   addInlineListener: (node, eventName, handler) ->
     listenersByNode = (@inlineListenersByEventName[eventName] ?= new WeakMap)
     unless listeners = listenersByNode.get(node)
       listeners = []
       listenersByNode.set(node, listeners)
     listeners.push(handler)
+
+    new Disposable ->
+      index = listeners.indexOf(handler)
+      listeners.splice(index, 1)
 
   dispatchEvent: (event) =>
     currentTarget = event.target
