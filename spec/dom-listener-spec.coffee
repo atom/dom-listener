@@ -25,18 +25,21 @@ describe "DOMListener", ->
         expect(this).toBe parent
         expect(event.target).toBe grandchild
         expect(event.currentTarget).toBe parent
+        expect(event.eventPhase).toBe Event.BUBBLING_PHASE
         calls.push('parent')
 
       listener.add '.child', 'event', (event) ->
         expect(this).toBe child
         expect(event.target).toBe grandchild
         expect(event.currentTarget).toBe child
+        expect(event.eventPhase).toBe Event.BUBBLING_PHASE
         calls.push('child')
 
       listener.add '.grandchild', 'event', (event) ->
         expect(this).toBe grandchild
         expect(event.target).toBe grandchild
         expect(event.currentTarget).toBe grandchild
+        expect(event.eventPhase).toBe Event.BUBBLING_PHASE
         calls.push('grandchild')
 
       grandchild.dispatchEvent(new CustomEvent('event', bubbles: true))
