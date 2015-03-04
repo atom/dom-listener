@@ -7,11 +7,18 @@ module.exports =
 class DOMListener
   constructor: (@element) ->
     @selectorBasedListenersByEventName = {}
+    @inlineListenersByEventName = {}
+    @nativeEventListeners = new Set
 
   add: (target, eventName, handler) ->
-    if @listenerCountForEventName(eventName) is 0
+    unless @nativeEventListeners.has(eventName)
       @element.addEventListener(eventName, @dispatchEvent)
-    @addSelectorBasedListener(target, eventName, handler)
+      @nativeEventListeners.add(eventName)
+
+    if typeof target is 'string'
+      @addSelectorBasedListener(target, eventName, handler)
+    else
+      @addInlineListener(target, eventName, handler)
 
   addSelectorBasedListener: (selector, eventName, handler) ->
     newListener = new SelectorBasedListener(selector, handler)
@@ -20,8 +27,12 @@ class DOMListener
     index = -index - 1 if index < 0 # index is negative index minus 1 if no exact match is found
     listeners.splice(index, 0, newListener)
 
-  listenerCountForEventName: (eventName) ->
-    @selectorBasedListenersByEventName[eventName]?.length ? 0
+  addInlineListener: (node, eventName, handler) ->
+    listenersByNode = (@inlineListenersByEventName[eventName] ?= new WeakMap)
+    unless listeners = listenersByNode.get(node)
+      listeners = []
+      listenersByNode.set(node, listeners)
+    listeners.push(handler)
 
   dispatchEvent: (event) =>
     syntheticEvent = Object.create event,
@@ -30,9 +41,14 @@ class DOMListener
 
     currentTarget = event.target
     loop
-      listeners = @selectorBasedListenersByEventName[event.type]
-      if listeners and typeof currentTarget.matches is 'function'
-        for listener in listeners when currentTarget.matches(listener.selector)
+      inlineListeners = @inlineListenersByEventName[event.type]?.get(currentTarget)
+      if inlineListeners?
+        for handler in inlineListeners
+          handler.call(currentTarget, syntheticEvent)
+
+      selectorBasedListeners = @selectorBasedListenersByEventName[event.type]
+      if selectorBasedListeners? and typeof currentTarget.matches is 'function'
+        for listener in selectorBasedListeners when currentTarget.matches(listener.selector)
           listener.handler.call(currentTarget, syntheticEvent)
 
       break if currentTarget is @element

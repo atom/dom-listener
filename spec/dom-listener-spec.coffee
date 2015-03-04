@@ -58,3 +58,23 @@ describe "DOMListener", ->
       grandchild.dispatchEvent(new CustomEvent('event', bubbles: true))
 
       expect(calls).toEqual ['a', 'b', 'c', 'd']
+
+    it "invokes inline listeners before selector-based listeners", ->
+      calls = []
+
+      listener.add '.grandchild', 'event', -> calls.push('grandchild selector')
+      listener.add child, 'event', (event) ->
+        expect(event.eventPhase).toBe Event.BUBBLING_PHASE
+        expect(event.currentTarget).toBe child
+        expect(event.target).toBe grandchild
+        calls.push('child inline 1')
+      listener.add child, 'event', (event) ->
+        expect(event.eventPhase).toBe Event.BUBBLING_PHASE
+        expect(event.currentTarget).toBe child
+        expect(event.target).toBe grandchild
+        calls.push('child inline 2')
+      listener.add '.child', 'event', -> calls.push('child selector')
+
+      grandchild.dispatchEvent(new CustomEvent('event', bubbles: true))
+
+      expect(calls).toEqual ['grandchild selector', 'child inline 1', 'child inline 2', 'child selector']
