@@ -55,6 +55,6 @@ describe "DOMListener", ->
       listener.add '.child.foo', 'event', -> calls.push('c')
       listener.add '.child', 'event', -> calls.push('d')
 
-      child.dispatchEvent(new CustomEvent('event', bubbles: true))
+      grandchild.dispatchEvent(new CustomEvent('event', bubbles: true))
 
       expect(calls).toEqual ['a', 'b', 'c', 'd']
