@@ -1,4 +1,7 @@
 {specificity} = require 'clear-cut'
+search = require 'binary-search'
+
+SpecificityCache = {}
 
 module.exports =
 class DOMListener
@@ -6,12 +9,16 @@ class DOMListener
     @selectorBasedListenersByEventName = {}
 
   add: (target, eventName, handler) ->
-    @element.addEventListener(eventName, @dispatchEvent) if @listenerCountForEventName(eventName) is 0
+    if @listenerCountForEventName(eventName) is 0
+      @element.addEventListener(eventName, @dispatchEvent)
     @addSelectorBasedListener(target, eventName, handler)
 
   addSelectorBasedListener: (selector, eventName, handler) ->
-    @selectorBasedListenersByEventName[eventName] ?= []
-    @selectorBasedListenersByEventName[eventName].push(new SelectorBasedListener(selector, handler))
+    newListener = new SelectorBasedListener(selector, handler)
+    listeners = (@selectorBasedListenersByEventName[eventName] ?= [])
+    index = search(listeners, newListener, (a, b) -> b.specificity - a.specificity)
+    index = -index - 1 if index < 0 # index is negative index minus 1 if no exact match is found
+    listeners.splice(index, 0, newListener)
 
   listenerCountForEventName: (eventName) ->
     @selectorBasedListenersByEventName[eventName]?.length ? 0
@@ -29,6 +36,8 @@ class DOMListener
           listener.handler.call(currentTarget, syntheticEvent)
 
       break if currentTarget is @element
+      currentTarget = currentTarget.parentNode
 
 class SelectorBasedListener
   constructor: (@selector, @handler) ->
+    @specificity = (SpecificityCache[@selector] ?= specificity(@selector))

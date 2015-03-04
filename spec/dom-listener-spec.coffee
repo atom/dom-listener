@@ -42,3 +42,16 @@ describe "DOMListener", ->
       grandchild.dispatchEvent(new CustomEvent('event', bubbles: true))
 
       expect(calls).toEqual ['grandchild', 'child', 'parent']
+
+    it "invokes multiple matching callbacks for the same element by selector specificity, then recency", ->
+      child.classList.add('foo', 'bar')
+      calls = []
+
+      listener.add '.child.foo.bar', 'event', -> calls.push('b')
+      listener.add '.child.foo.bar', 'event', -> calls.push('a')
+      listener.add '.child.foo', 'event', -> calls.push('c')
+      listener.add '.child', 'event', -> calls.push('d')
+
+      child.dispatchEvent(new CustomEvent('event', bubbles: true))
+
+      expect(calls).toEqual ['a', 'b', 'c', 'd']
