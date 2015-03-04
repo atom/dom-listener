@@ -78,3 +78,16 @@ describe "DOMListener", ->
       grandchild.dispatchEvent(new CustomEvent('event', bubbles: true))
 
       expect(calls).toEqual ['grandchild selector', 'child inline 1', 'child inline 2', 'child selector']
+
+    it "stops invoking listeners on ancestors when .stopPropagation() is called on the synthetic event", ->
+      calls = []
+      listener.add '.parent', 'event', -> calls.push('parent')
+      listener.add '.child', 'event', (event) -> calls.push('child'); event.stopPropagation()
+      listener.add '.grandchild', 'event', (event) -> calls.push('grandchild')
+
+      dispatchedEvent = new CustomEvent('event', bubbles: true)
+      spyOn(dispatchedEvent, 'stopPropagation')
+      grandchild.dispatchEvent(dispatchedEvent)
+
+      expect(calls).toEqual ['grandchild', 'child']
+      expect(dispatchedEvent.stopPropagation).toHaveBeenCalled()

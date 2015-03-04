@@ -35,11 +35,16 @@ class DOMListener
     listeners.push(handler)
 
   dispatchEvent: (event) =>
+    currentTarget = event.target
+    propagationStopped = false
+
     syntheticEvent = Object.create event,
       eventPhase: value: Event.BUBBLING_PHASE
       currentTarget: get: -> currentTarget
+      stopPropagation: value: ->
+        propagationStopped = true
+        event.stopPropagation()
 
-    currentTarget = event.target
     loop
       inlineListeners = @inlineListenersByEventName[event.type]?.get(currentTarget)
       if inlineListeners?
@@ -51,6 +56,7 @@ class DOMListener
         for listener in selectorBasedListeners when currentTarget.matches(listener.selector)
           listener.handler.call(currentTarget, syntheticEvent)
 
+      break if propagationStopped
       break if currentTarget is @element
       currentTarget = currentTarget.parentNode
 
