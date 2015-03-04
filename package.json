@@ -1,0 +1,39 @@
+{
+  "name": "dom-listener",
+  "version": "0.0.0",
+  "description": "A listener for delegated DOM events.",
+  "main": "./lib/dom-listener",
+  "scripts": {
+    "prepublish": "grunt clean lint coffee",
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/atom/dom-listener.git"
+  },
+  "bugs": {
+    "url": "https://github.com/atom/dom-listener/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/atom/dom-listener/raw/master/LICENSE.md"
+    }
+  ],
+  "dependencies": {
+    "binary-search": "^1.2.0",
+    "clear-cut": "^0.3.0"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.7.0",
+    "jasmine-focused": "^1.0.4",
+    "grunt-contrib-coffee": "^0.9.0",
+    "grunt-cli": "^0.1.8",
+    "grunt": "^0.4.1",
+    "grunt-shell": "^0.2.2",
+    "grunt-coffeelint": "^0.0.6",
+    "rimraf": "^2.2.2",
+    "coffee-cache": "^0.2.0",
+    "temp": "^0.6.0"
+  }
+}
