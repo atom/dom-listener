@@ -91,3 +91,27 @@ describe "DOMListener", ->
 
       expect(calls).toEqual ['grandchild', 'child']
       expect(dispatchedEvent.stopPropagation).toHaveBeenCalled()
+
+    it "stops invoking listeners entirely when .stopImmediatePropagation() is called on the synthetic event", ->
+      calls = []
+      listener.add '.parent', 'event', -> calls.push('parent')
+      listener.add '.child', 'event', (event) -> calls.push('child 2')
+      listener.add '.child', 'event', (event) -> calls.push('child 1'); event.stopImmediatePropagation()
+      listener.add '.grandchild', 'event', (event) -> calls.push('grandchild')
+
+      dispatchedEvent = new CustomEvent('event', bubbles: true)
+      spyOn(dispatchedEvent, 'stopImmediatePropagation')
+      grandchild.dispatchEvent(dispatchedEvent)
+
+      expect(calls).toEqual ['grandchild', 'child 1']
+      expect(dispatchedEvent.stopImmediatePropagation).toHaveBeenCalled()
+      calls = []
+
+      # also works on inline listeners
+      listener.add child, 'event', (event) -> calls.push('inline child'); event.stopImmediatePropagation()
+
+      dispatchedEvent = new CustomEvent('event', bubbles: true)
+      spyOn(dispatchedEvent, 'stopImmediatePropagation')
+      grandchild.dispatchEvent(dispatchedEvent)
+      expect(calls).toEqual ['grandchild', 'inline child']
+      expect(dispatchedEvent.stopImmediatePropagation).toHaveBeenCalled()
