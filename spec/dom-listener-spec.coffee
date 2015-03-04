@@ -115,3 +115,11 @@ describe "DOMListener", ->
       grandchild.dispatchEvent(dispatchedEvent)
       expect(calls).toEqual ['grandchild', 'inline child']
       expect(dispatchedEvent.stopImmediatePropagation).toHaveBeenCalled()
+
+    it "forwards .preventDefault() calls to the original event", ->
+      listener.add '.child', 'event', (event) -> event.preventDefault()
+
+      dispatchedEvent = new CustomEvent('event', bubbles: true)
+      spyOn(dispatchedEvent, 'preventDefault')
+      grandchild.dispatchEvent(dispatchedEvent)
+      expect(dispatchedEvent.preventDefault).toHaveBeenCalled()
