@@ -55,7 +55,7 @@ class DOMListener
     propagationStopped = false
     immediatePropagationStopped = false
 
-    syntheticEvent = Object.create event,
+    syntheticEvent = Object.create {},
       eventPhase: value: Event.BUBBLING_PHASE
       currentTarget: get: -> currentTarget
       stopPropagation: value: ->
@@ -65,6 +65,10 @@ class DOMListener
         propagationStopped = true
         immediatePropagationStopped = true
         event.stopImmediatePropagation()
+
+    # NOTE: In Chrome 43, Object.create doesn't work well with CustomEvent
+    for key in Object.keys(event)
+      syntheticEvent[key] = event[key]
 
     loop
       inlineListeners = @inlineListenersByEventName[event.type]?.get(currentTarget)
