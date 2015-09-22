@@ -23,26 +23,37 @@ describe "DOMListener", ->
 
       listener.add '.parent', 'event', (event) ->
         expect(this).toBe parent
+        expect(event.type).toBe 'event'
+        expect(event.detail).toBe 'detail'
         expect(event.target).toBe grandchild
         expect(event.currentTarget).toBe parent
         expect(event.eventPhase).toBe Event.BUBBLING_PHASE
+        expect(event.customProperty).toBe 'foo'
         calls.push('parent')
 
       listener.add '.child', 'event', (event) ->
         expect(this).toBe child
+        expect(event.type).toBe 'event'
+        expect(event.detail).toBe 'detail'
         expect(event.target).toBe grandchild
         expect(event.currentTarget).toBe child
         expect(event.eventPhase).toBe Event.BUBBLING_PHASE
+        expect(event.customProperty).toBe 'foo'
         calls.push('child')
 
       listener.add '.grandchild', 'event', (event) ->
         expect(this).toBe grandchild
+        expect(event.type).toBe 'event'
+        expect(event.detail).toBe 'detail'
         expect(event.target).toBe grandchild
         expect(event.currentTarget).toBe grandchild
         expect(event.eventPhase).toBe Event.BUBBLING_PHASE
+        expect(event.customProperty).toBe 'foo'
         calls.push('grandchild')
 
-      grandchild.dispatchEvent(new CustomEvent('event', bubbles: true))
+      dispatchedEvent = new CustomEvent('event', bubbles: true, detail: 'detail')
+      dispatchedEvent.customProperty = 'foo'
+      grandchild.dispatchEvent(dispatchedEvent)
 
       expect(calls).toEqual ['grandchild', 'child', 'parent']
 
@@ -117,7 +128,9 @@ describe "DOMListener", ->
       expect(dispatchedEvent.stopImmediatePropagation).toHaveBeenCalled()
 
     it "forwards .preventDefault() calls to the original event", ->
-      listener.add '.child', 'event', (event) -> event.preventDefault()
+      listener.add '.child', 'event', (event) ->
+        event.preventDefault()
+        expect(event.defaultPrevented).toBe true
 
       dispatchedEvent = new CustomEvent('event', bubbles: true)
       spyOn(dispatchedEvent, 'preventDefault')

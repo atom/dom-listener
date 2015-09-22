@@ -54,9 +54,13 @@ class DOMListener
     currentTarget = event.target
     propagationStopped = false
     immediatePropagationStopped = false
+    defaultPrevented = false
 
-    syntheticEvent = Object.create event,
+    syntheticEvent = Object.create event.constructor.prototype,
+      type: value: event.type
+      detail: value: event.detail
       eventPhase: value: Event.BUBBLING_PHASE
+      target: value: currentTarget
       currentTarget: get: -> currentTarget
       stopPropagation: value: ->
         propagationStopped = true
@@ -65,6 +69,13 @@ class DOMListener
         propagationStopped = true
         immediatePropagationStopped = true
         event.stopImmediatePropagation()
+      preventDefault: value: ->
+        defaultPrevented = true
+        event.preventDefault()
+      defaultPrevented: get: -> defaultPrevented
+
+    for key in Object.keys(event)
+      syntheticEvent[key] ?= event[key]
 
     loop
       inlineListeners = @inlineListenersByEventName[event.type]?.get(currentTarget)
