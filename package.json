@@ -1,6 +1,6 @@
 {
   "name": "dom-listener",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A listener for delegated DOM events.",
   "main": "./lib/dom-listener",
   "scripts": {
