@@ -75,8 +75,10 @@ class DOMListener
       defaultPrevented: get: -> defaultPrevented
     }
 
-    for key, value of event
-      descriptor[key] ?= {value}
+    for key of event
+      if (key != 'webkitMovementX' && key != 'webkitMovementY')
+        value = event[key]
+        descriptor[key] ?= {value}
 
     syntheticEvent = Object.create(event.constructor.prototype, descriptor)
 
