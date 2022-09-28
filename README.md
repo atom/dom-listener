@@ -1,4 +1,5 @@
-# dom-listener
+##### Atom and all repositories under Atom will be archived on December 15, 2022. Learn more in our [official announcement](https://github.blog/2022-06-08-sunsetting-atom/)
+ # dom-listener
 
 This library simplifies the event delegation pattern for DOM events. When you
 build a `DOMListener` with a DOM node, you can associate event handles with any
